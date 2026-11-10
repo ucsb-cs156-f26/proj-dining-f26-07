@@ -1,0 +1,92 @@
+:root {
+    --dining-navy: #0b2240;
+    --dining-blue: #2f6fd6;
+    --dining-blue-dark: #1f4fa0;
+    --dining-light-blue: #dbe9ff;
+    --dining-medium-blue: #b8d4ff;
+
+    --bs-primary: #2f6fd6;
+    --bs-primary-rgb: 47, 111, 214;
+    --bs-body-bg: #eef5ff;
+    --bs-body-color: #222222;
+    --bs-border-radius: 12px;
+
+    --bs-link-color: #2f6fd6;
+    --bs-link-color-rgb: 47, 111, 214;
+    --bs-link-hover-color: #1f4fa0;
+    --bs-link-hover-color-rgb: 31, 79, 160;   
+    
+}
+.container {
+  max-width: 95%;
+}
+
+.btn {
+    border-radius: 999px;
+}
+.btn-primary {
+    --bs-btn-bg: var(--dining-blue);
+    --bs-btn-border-color: var(--dining-blue);
+    --bs-btn-hover-bg: var(--dining-blue-dark);
+    --bs-btn-hover-border-color: var(--dining-blue-dark);
+}
+
+.dining-navbar {
+    display: flex;
+    background-color: rgb(1, 34, 63); 
+    backdrop-filter: blur(8px);             
+    -webkit-backdrop-filter: blur(8px);     
+    padding-top: 35px;                   
+    padding-bottom: 35px;
+    font-size: 20px;
+}
+.dining-navbar .nav-link {
+    margin-left: 8px;
+    margin-right: 8px;
+}
+
+.dining-navbar .navbar-brand {
+    font-size: 30px;
+    margin-right: 32px;
+}
+.dining-navbar .container {
+    max-width: 95%;
+}
+
+
+.table {
+    font-size: 18px;
+    --bs-table-bg: var(--dining-light-blue);
+    --bs-table-striped-bg: var(--dining-medium-blue);
+}
+
+.table th,
+.table td {
+    padding: 14px 18px;
+}
+
+.table a {
+    color: inherit;
+    text-decoration: none;
+}
+
+.table a:hover {
+    text-decoration: underline;
+    color: #696eff;
+}
+
+.table td:nth-child(3) a {
+    display: block;
+    margin-bottom: 4px;
+}
+
+input[type="date"] {
+    padding: 6px 10px;
+    border: 1px solid var(--dining-medium-blue);
+    border-radius: 8px;
+    font-size: 16px;
+}
+
+.dining-commons-title{
+    padding-bottom: 10px;
+}
