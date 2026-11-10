@@ -1,5 +1,9 @@
 package edu.ucsb.cs156.dining.controllers;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -25,6 +29,7 @@ import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
 
 @WebMvcTest(value = UCSBDiningMenuItemsController.class)
 @Import(SecurityConfig.class)
@@ -120,5 +125,78 @@ public class UCSBDiningMenuItemsControllerTests extends ControllerTestCase {
     mockMvc
         .perform(get("/api/diningcommons/menuitem?id=1").contentType(MediaType.APPLICATION_JSON))
         .andExpect(status().isNotFound());
+  }
+
+  // Two sample items used by the search tests below
+  private final MenuItem gingerBeef =
+      MenuItem.builder()
+          .id(1L)
+          .diningCommonsCode("carrillo")
+          .mealCode("dinner")
+          .name("Ginger Beef Stir Fry")
+          .station("Mongolian Grill")
+          .build();
+
+  private final MenuItem tofuStirFry =
+      MenuItem.builder()
+          .id(2L)
+          .diningCommonsCode("carrillo")
+          .mealCode("dinner")
+          .name("Tofu & Vegetable Stir Fry (vgn)")
+          .station("Mongolian Grill")
+          .build();
+
+  @Test
+  public void search_menu_items_returns_matching_items() throws Exception {
+    // arrange
+    List<MenuItem> matches = List.of(gingerBeef, tofuStirFry);
+    when(menuItemRepository.findByNameContainingIgnoreCaseOrderByNameAsc("stir"))
+        .thenReturn(matches);
+
+    // act
+    MvcResult response =
+        mockMvc
+            .perform(get("/api/diningcommons/menuitem/search").param("query", "stir"))
+            .andExpect(status().isOk())
+            .andReturn();
+
+    // assert
+    verify(menuItemRepository).findByNameContainingIgnoreCaseOrderByNameAsc("stir");
+    String expectedJson = objectMapper.writeValueAsString(matches);
+    assertEquals(expectedJson, response.getResponse().getContentAsString());
+  }
+
+  @Test
+  public void search_menu_items_trims_spaces_from_query() throws Exception {
+    // arrange
+    List<MenuItem> matches = List.of(gingerBeef);
+    when(menuItemRepository.findByNameContainingIgnoreCaseOrderByNameAsc("stir"))
+        .thenReturn(matches);
+
+    // act
+    MvcResult response =
+        mockMvc
+            .perform(get("/api/diningcommons/menuitem/search").param("query", "  stir  "))
+            .andExpect(status().isOk())
+            .andReturn();
+
+    // assert: the spaces were removed before searching
+    verify(menuItemRepository).findByNameContainingIgnoreCaseOrderByNameAsc("stir");
+    String expectedJson = objectMapper.writeValueAsString(matches);
+    assertEquals(expectedJson, response.getResponse().getContentAsString());
+  }
+
+  @Test
+  public void search_menu_items_returns_empty_list_for_blank_query() throws Exception {
+    // act
+    MvcResult response =
+        mockMvc
+            .perform(get("/api/diningcommons/menuitem/search").param("query", "   "))
+            .andExpect(status().isOk())
+            .andReturn();
+
+    // assert: the database was never searched, and the result is an empty list
+    verify(menuItemRepository, never()).findByNameContainingIgnoreCaseOrderByNameAsc(anyString());
+    assertEquals("[]", response.getResponse().getContentAsString());
   }
 }
