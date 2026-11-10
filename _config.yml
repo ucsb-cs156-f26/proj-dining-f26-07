@@ -23,4 +23,4 @@ repo_name: "TBD"
 repo: ucsb-cs156-f26/proj-dining-f26-07
 owner: ucsb-cs156-f26
 repo_name: proj-dining-f26-07
-pull_requests: []
+pull_requests: [{"author":{"id":"U_kgDOCvzEcA","is_bot":false,"login":"schaput314","name":""},"headRefName":"sc-upgrade-maven","number":14,"title":"sc-updated maven to use mount points with reference to proj-frontiers","url":"https://github.com/ucsb-cs156-f26/proj-dining-f26-07/pull/14"}]
