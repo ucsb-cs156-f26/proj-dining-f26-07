@@ -96,7 +96,7 @@ describe("UsersIndexPage tests", () => {
     renderPage();
 
     const select = screen.getByTestId("UsersIndexPage-pageSize");
-
+    expect(select.style.width).toBe("auto");
     const options = select.querySelectorAll("option");
     const values = Array.from(options).map((o) => o.value);
 

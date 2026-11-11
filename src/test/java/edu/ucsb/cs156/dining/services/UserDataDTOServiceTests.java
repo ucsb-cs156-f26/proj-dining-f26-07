@@ -115,4 +115,21 @@ public class UserDataDTOServiceTests {
 
     verify(userRepository).findAll(sortedPageable);
   }
+
+  @Test
+  void getUserDataDTOs_ignoresBlankConfiguredAdminEmails() {
+    User user = User.builder().id(9L).email("").build();
+
+    Pageable sortedPageable = PageRequest.of(0, 10, Sort.by("id").ascending());
+
+    when(userRepository.findAll(sortedPageable))
+        .thenReturn(new PageImpl<>(List.of(user), sortedPageable, 1));
+
+    when(adminRepository.findAll()).thenReturn(List.of());
+    when(moderatorRepository.findAll()).thenReturn(List.of());
+
+    Page<UserDTO> result = service.getUserDataDTOs(PageRequest.of(0, 10));
+
+    assertFalse(result.getContent().get(0).admin());
+  }
 }

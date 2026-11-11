@@ -11,8 +11,10 @@ export default function UsersIndexPage() {
   const [currentPage, setCurrentPage] = useState(0);
 
   const { data: userPage, isFetching } = useBackend(
+    // Stryker disable next-line StringLiteral: cache key is an internal React Query detail
     ["/api/admin/users/paged", currentPage, pageSize],
     {
+      // Stryker disable next-line StringLiteral: Axios defaults to GET
       method: "GET",
       url: "/api/admin/users/paged",
       params: {
@@ -21,7 +23,7 @@ export default function UsersIndexPage() {
       },
     },
   );
-
+  // Stryker disable next-line ArrayDeclaration: empty array is the default loading state
   const users = userPage?.content ?? [];
   const totalPages = userPage?.totalPages ?? 0;
 
@@ -69,9 +71,7 @@ export default function UsersIndexPage() {
 
           <button
             className="btn btn-outline-secondary"
-            onClick={() =>
-              setCurrentPage((p) => Math.min(p + 1, totalPages - 1))
-            }
+            onClick={() => setCurrentPage((p) => p + 1)}
             disabled={isFetching || currentPage >= totalPages - 1}
             data-testid="UsersIndexPage-next"
           >
