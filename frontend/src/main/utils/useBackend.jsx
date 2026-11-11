@@ -98,5 +98,4 @@ export function useBackendMutation(
     retry: false,
     ...useMutationParams,
   });
-
 }
