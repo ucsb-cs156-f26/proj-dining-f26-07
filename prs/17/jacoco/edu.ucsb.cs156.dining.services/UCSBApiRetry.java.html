@@ -27,8 +27,8 @@ final class UCSBApiRetry {
 
 <span class="fc" id="L28">        Duration delay = retryDelay(e, attempt);</span>
 <span class="fc" id="L29">        log.warn(</span>
-            &quot;UCSB API returned 429; retrying attempt {} of {} after {}&quot;,
-<span class="fc" id="L31">            attempt + 1,</span>
+            &quot;UCSB API returned 429 on attempt {} of {}; retrying after {}&quot;,
+<span class="fc" id="L31">            attempt,</span>
 <span class="fc" id="L32">            MAX_ATTEMPTS,</span>
             delay);
         try {
@@ -42,7 +42,7 @@ final class UCSBApiRetry {
     }
   }
 
-  private static Duration retryDelay(HttpClientErrorException exception, int attempt) {
+  static Duration retryDelay(HttpClientErrorException exception, int attempt) {
     String retryAfter =
 <span class="fc bfc" id="L47" title="All 2 branches covered.">        exception.getResponseHeaders() == null</span>
 <span class="fc" id="L48">            ? null</span>

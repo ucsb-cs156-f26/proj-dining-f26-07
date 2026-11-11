@@ -29,7 +29,7 @@ proj-dining,edu.ucsb.cs156.dining.models,UserDTO,0,84,0,0,0,17,0,2,0,2
 proj-dining,edu.ucsb.cs156.dining.services,UCSBDiningMenuItemsService.new TypeReference() {...},0,8,0,0,0,1,0,1,0,1
 proj-dining,edu.ucsb.cs156.dining.services,UCSBDiningMenuService,0,174,0,4,0,39,0,6,0,4
 proj-dining,edu.ucsb.cs156.dining.services,MonthlyMenuItemsLoader,0,210,0,22,0,52,0,17,0,6
-proj-dining,edu.ucsb.cs156.dining.services,UCSBApiRetry,0,106,0,10,0,28,0,8,0,3
+proj-dining,edu.ucsb.cs156.dining.services,UCSBApiRetry,0,104,0,10,0,28,0,8,0,3
 proj-dining,edu.ucsb.cs156.dining.services,DiningCommonsService.new TypeReference() {...},0,8,0,0,0,1,0,1,0,1
 proj-dining,edu.ucsb.cs156.dining.services,SystemInfoService,0,3,0,0,0,1,0,1,0,1
 proj-dining,edu.ucsb.cs156.dining.services,DiningCommonsService,0,92,0,0,0,22,0,4,0,4
