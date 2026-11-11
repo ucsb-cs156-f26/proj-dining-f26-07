@@ -9,6 +9,7 @@ import edu.ucsb.cs156.dining.models.UserDTO;
 import edu.ucsb.cs156.dining.repositories.AdminRepository;
 import edu.ucsb.cs156.dining.repositories.ModeratorRepository;
 import edu.ucsb.cs156.dining.repositories.UserRepository;
+import edu.ucsb.cs156.dining.services.UserDataDTOService;
 import edu.ucsb.cs156.dining.statuses.ModerationStatus;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -18,6 +19,8 @@ import java.util.List;
 import java.util.stream.StreamSupport;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -48,6 +51,8 @@ public class UsersController extends ApiController {
 
   @Autowired ObjectMapper mapper;
 
+  @Autowired UserDataDTOService userDataDTOService;
+
   /**
    * This method returns a list of all users. Accessible only to users with the role "ROLE_ADMIN".
    *
@@ -64,6 +69,19 @@ public class UsersController extends ApiController {
         StreamSupport.stream(users.spliterator(), false).map(this::userDTO).toList();
     String body = mapper.writeValueAsString(userDTOs);
     return ResponseEntity.ok().body(body);
+  }
+
+  /**
+   * Returns a paginated list of users sorted by user ID.
+   *
+   * @param pageable pagination parameters
+   * @return a page of users with computed admin and moderator flags
+   */
+  @Operation(summary = "Get a paginated list of users")
+  @PreAuthorize("hasRole('ROLE_ADMIN')")
+  @GetMapping("/admin/users/paged")
+  public Page<UserDTO> pagedUsers(Pageable pageable) {
+    return userDataDTOService.getUserDataDTOs(pageable);
   }
 
   /**

@@ -10,20 +10,20 @@ export default function UsersIndexPage() {
   const [pageSize, setPageSize] = useState(10);
   const [currentPage, setCurrentPage] = useState(0);
 
-  const { data: users } = useBackend(
-    // Stryker disable next-line ArrayDeclaration,StringLiteral: query key caching detail
-    ["/api/admin/users"],
-    // Stryker disable next-line StringLiteral: axios treats a falsy method as "GET"
-    { method: "GET", url: "/api/admin/users" },
-    // Stryker disable next-line ArrayDeclaration: empty array is the correct default
-    [],
+  const { data: userPage, isFetching } = useBackend(
+    ["/api/admin/users/paged", currentPage, pageSize],
+    {
+      method: "GET",
+      url: "/api/admin/users/paged",
+      params: {
+        page: currentPage,
+        size: pageSize,
+      },
+    },
   );
 
-  const totalPages = Math.ceil(users.length / pageSize);
-  const paginatedUsers = users.slice(
-    currentPage * pageSize,
-    (currentPage + 1) * pageSize,
-  );
+  const users = userPage?.content ?? [];
+  const totalPages = userPage?.totalPages ?? 0;
 
   const handlePageSizeChange = (e) => {
     setPageSize(Number(e.target.value));
@@ -34,10 +34,10 @@ export default function UsersIndexPage() {
     <BasicLayout>
       <div className="pt-2">
         <h1>Users</h1>
+
         <Form.Group className="mb-3 d-flex align-items-center gap-2">
           <Form.Label className="mb-0">Page Size:</Form.Label>
           <Form.Select
-            // Stryker disable next-line ObjectLiteral,StringLiteral: style is a visual detail
             style={{ width: "auto" }}
             value={pageSize}
             onChange={handlePageSizeChange}
@@ -50,26 +50,29 @@ export default function UsersIndexPage() {
             ))}
           </Form.Select>
         </Form.Group>
-        <UsersTable users={paginatedUsers} />
+
+        <UsersTable users={users} />
+
         <div className="d-flex align-items-center gap-2 mt-2">
           <button
             className="btn btn-outline-secondary"
             onClick={() => setCurrentPage((p) => Math.max(p - 1, 0))}
-            disabled={currentPage === 0}
+            disabled={currentPage === 0 || isFetching}
             data-testid="UsersIndexPage-prev"
           >
             Previous
           </button>
+
           <span data-testid="UsersIndexPage-page-info">
             Page {currentPage + 1} of {Math.max(totalPages, 1)}
           </span>
+
           <button
             className="btn btn-outline-secondary"
             onClick={() =>
-              // Stryker disable next-line ArithmeticOperator: next button is disabled at last page, so + 1 is unreachable in practice
               setCurrentPage((p) => Math.min(p + 1, totalPages - 1))
             }
-            disabled={currentPage >= totalPages - 1}
+            disabled={isFetching || currentPage >= totalPages - 1}
             data-testid="UsersIndexPage-next"
           >
             Next
