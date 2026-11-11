@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.nio.charset.StandardCharsets;
+import java.time.Duration;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -43,8 +44,10 @@ class UCSBApiRetryTests {
         () ->
             UCSBApiRetry.execute(
                 () -> {
-                  attempts.incrementAndGet();
-                  throw rateLimitedException;
+                  if (attempts.incrementAndGet() <= 4) {
+                    throw rateLimitedException;
+                  }
+                  return "unexpected success";
                 }));
 
     assertEquals(4, attempts.get());
@@ -132,6 +135,14 @@ class UCSBApiRetryTests {
         "Retry-After",
         ZonedDateTime.now().plusMinutes(1).format(DateTimeFormatter.RFC_1123_DATE_TIME));
     assertInterruptedRetry(rateLimitedException(headers));
+  }
+
+  @Test
+  void retryDelay_uses_exponential_backoff_when_retry_after_is_missing() {
+    HttpClientErrorException exception = rateLimitedException(null);
+
+    assertEquals(Duration.ofSeconds(1), UCSBApiRetry.retryDelay(exception, 1));
+    assertEquals(Duration.ofSeconds(2), UCSBApiRetry.retryDelay(exception, 2));
   }
 
   private void assertInterruptedRetry(HttpClientErrorException exception) {
