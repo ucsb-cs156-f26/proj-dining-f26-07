@@ -33,9 +33,9 @@ final class UCSBApiRetry {
             delay);
         try {
 <span class="fc" id="L35">          Thread.sleep(delay.toMillis());</span>
-<span class="nc" id="L36">        } catch (InterruptedException interruptedException) {</span>
-<span class="nc" id="L37">          Thread.currentThread().interrupt();</span>
-<span class="nc" id="L38">          throw new IllegalStateException(</span>
+<span class="fc" id="L36">        } catch (InterruptedException interruptedException) {</span>
+<span class="fc" id="L37">          Thread.currentThread().interrupt();</span>
+<span class="fc" id="L38">          throw new IllegalStateException(</span>
               &quot;Interrupted while backing off from UCSB API rate limit&quot;, interruptedException);
 <span class="fc" id="L40">        }</span>
       }
@@ -44,25 +44,25 @@ final class UCSBApiRetry {
 
   private static Duration retryDelay(HttpClientErrorException exception, int attempt) {
     String retryAfter =
-<span class="pc bpc" id="L47" title="1 of 2 branches missed.">        exception.getResponseHeaders() == null</span>
-<span class="nc" id="L48">            ? null</span>
+<span class="fc bfc" id="L47" title="All 2 branches covered.">        exception.getResponseHeaders() == null</span>
+<span class="fc" id="L48">            ? null</span>
 <span class="fc" id="L49">            : exception.getResponseHeaders().getFirst(&quot;Retry-After&quot;);</span>
-<span class="pc bpc" id="L50" title="1 of 2 branches missed.">    if (retryAfter != null) {</span>
+<span class="fc bfc" id="L50" title="All 2 branches covered.">    if (retryAfter != null) {</span>
       try {
 <span class="fc" id="L52">        return Duration.ofSeconds(Math.max(0, Long.parseLong(retryAfter)));</span>
-<span class="nc" id="L53">      } catch (NumberFormatException ignored) {</span>
+<span class="fc" id="L53">      } catch (NumberFormatException ignored) {</span>
         try {
-<span class="nc" id="L55">          Instant retryAt =</span>
-<span class="nc" id="L56">              ZonedDateTime.parse(retryAfter, DateTimeFormatter.RFC_1123_DATE_TIME).toInstant();</span>
-<span class="nc" id="L57">          Duration delay = Duration.between(Instant.now(), retryAt);</span>
-<span class="nc bnc" id="L58" title="All 2 branches missed.">          return delay.isNegative() ? Duration.ZERO : delay;</span>
-<span class="nc" id="L59">        } catch (RuntimeException invalidDate) {</span>
-<span class="nc" id="L60">          log.warn(&quot;Ignoring unparseable UCSB API Retry-After header: {}&quot;, retryAfter);</span>
+<span class="fc" id="L55">          Instant retryAt =</span>
+<span class="fc" id="L56">              ZonedDateTime.parse(retryAfter, DateTimeFormatter.RFC_1123_DATE_TIME).toInstant();</span>
+<span class="fc" id="L57">          Duration delay = Duration.between(Instant.now(), retryAt);</span>
+<span class="fc bfc" id="L58" title="All 2 branches covered.">          return delay.isNegative() ? Duration.ZERO : delay;</span>
+<span class="fc" id="L59">        } catch (RuntimeException invalidDate) {</span>
+<span class="fc" id="L60">          log.warn(&quot;Ignoring unparseable UCSB API Retry-After header: {}&quot;, retryAfter);</span>
         }
       }
     }
 
-<span class="nc" id="L65">    return Duration.ofSeconds(1L &lt;&lt; (attempt - 1));</span>
+<span class="fc" id="L65">    return Duration.ofSeconds(1L &lt;&lt; (attempt - 1));</span>
   }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.15.202606040825</span></div></body></html>

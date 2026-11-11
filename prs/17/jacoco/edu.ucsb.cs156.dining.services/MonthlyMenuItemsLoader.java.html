@@ -46,7 +46,7 @@ public class MonthlyMenuItemsLoader {
 <span class="fc" id="L46">  }</span>
 
   void loadMonth(YearMonth month) {
-<span class="pc bpc" id="L49" title="1 of 6 branches missed.">    if (apiKey == null || apiKey.isBlank() || DEFAULT_API_KEY.equals(apiKey.trim())) {</span>
+<span class="fc bfc" id="L49" title="All 6 branches covered.">    if (apiKey == null || apiKey.isBlank() || DEFAULT_API_KEY.equals(apiKey.trim())) {</span>
 <span class="fc" id="L50">      log.warn(&quot;Skipping monthly menu item download because the UCSB API key is not configured&quot;);</span>
 <span class="fc" id="L51">      return;</span>
     }
@@ -54,9 +54,9 @@ public class MonthlyMenuItemsLoader {
     List&lt;DiningCommons&gt; commons;
     try {
 <span class="fc" id="L56">      commons = diningCommonsService.get();</span>
-<span class="nc" id="L57">    } catch (JsonProcessingException | RestClientException e) {</span>
-<span class="nc" id="L58">      log.error(&quot;Unable to retrieve UCSB dining commons for monthly menu item download&quot;, e);</span>
-<span class="nc" id="L59">      return;</span>
+<span class="fc" id="L57">    } catch (JsonProcessingException | RestClientException e) {</span>
+<span class="fc" id="L58">      log.error(&quot;Unable to retrieve UCSB dining commons for monthly menu item download&quot;, e);</span>
+<span class="fc" id="L59">      return;</span>
 <span class="fc" id="L60">    }</span>
 
 <span class="fc" id="L62">    for (LocalDate date = month.atDay(1);</span>
@@ -73,21 +73,21 @@ public class MonthlyMenuItemsLoader {
 <span class="fc" id="L73">    String commonCode = diningCommon.getCode();</span>
     try {
 <span class="fc" id="L75">      String menuJson = diningMenuService.getJSON(date, commonCode);</span>
-<span class="pc bpc" id="L76" title="2 of 4 branches missed.">      if (menuJson == null || menuJson.isBlank()) {</span>
-<span class="nc" id="L77">        return;</span>
+<span class="fc bfc" id="L76" title="All 4 branches covered.">      if (menuJson == null || menuJson.isBlank()) {</span>
+<span class="fc" id="L77">        return;</span>
       }
 
 <span class="fc" id="L80">      JsonNode mealTimes = objectMapper.readTree(menuJson);</span>
-<span class="pc bpc" id="L81" title="1 of 2 branches missed.">      if (!mealTimes.isArray()) {</span>
-<span class="nc" id="L82">        log.warn(&quot;Ignoring malformed meal-times response for {} on {}&quot;, commonCode, date);</span>
-<span class="nc" id="L83">        return;</span>
+<span class="fc bfc" id="L81" title="All 2 branches covered.">      if (!mealTimes.isArray()) {</span>
+<span class="fc" id="L82">        log.warn(&quot;Ignoring malformed meal-times response for {} on {}&quot;, commonCode, date);</span>
+<span class="fc" id="L83">        return;</span>
       }
 
 <span class="fc bfc" id="L86" title="All 2 branches covered.">      for (JsonNode mealTime : mealTimes) {</span>
 <span class="fc" id="L87">        JsonNode codeNode = mealTime.get(&quot;code&quot;);</span>
-<span class="pc bpc" id="L88" title="2 of 4 branches missed.">        if (codeNode == null || codeNode.asText().isBlank()) {</span>
-<span class="nc" id="L89">          log.warn(&quot;Ignoring meal time without a code for {} on {}&quot;, commonCode, date);</span>
-<span class="nc" id="L90">          continue;</span>
+<span class="fc bfc" id="L88" title="All 4 branches covered.">        if (codeNode == null || codeNode.asText().isBlank()) {</span>
+<span class="fc" id="L89">          log.warn(&quot;Ignoring meal time without a code for {} on {}&quot;, commonCode, date);</span>
+<span class="fc" id="L90">          continue;</span>
         }
 <span class="fc" id="L92">        loadMealItems(date, commonCode, codeNode.asText());</span>
 <span class="fc" id="L93">      }</span>
@@ -100,8 +100,8 @@ public class MonthlyMenuItemsLoader {
     try {
 <span class="fc" id="L101">      List&lt;Entree&gt; entrees = menuItemsService.get(date, commonCode, mealCode);</span>
 <span class="fc" id="L102">      menuItemsService.getOrCreateMenuItems(commonCode, mealCode, entrees);</span>
-<span class="nc" id="L103">    } catch (JsonProcessingException | RestClientException | DataAccessException e) {</span>
-<span class="nc" id="L104">      log.error(</span>
+<span class="fc" id="L103">    } catch (JsonProcessingException | RestClientException | DataAccessException e) {</span>
+<span class="fc" id="L104">      log.error(</span>
           &quot;Unable to load menu items for dining common {}, meal {}, on {}&quot;,
           commonCode,
           mealCode,
