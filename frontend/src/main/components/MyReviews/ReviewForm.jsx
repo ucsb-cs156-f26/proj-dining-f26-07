@@ -1,13 +1,19 @@
 import React, { useEffect } from "react";
+import { useForm } from "react-hook-form";
 import { Form, Button } from "react-bootstrap";
 
-function dateTimeLocalValue(dateTime) {
+export default function dateTimeLocalValue(dateTime) {
   return dateTime
     ? dateTime.slice(0, 16)
     : new Date().toISOString().slice(0, 16);
 }
 
 export default function ReviewForm({
+  /*
+  initialContents,
+  submitAction,
+  submitButtonText = "Submit Review",
+  */
   initialItemName = "",
   initialComments = "",
   initialStars = 5,
@@ -15,6 +21,21 @@ export default function ReviewForm({
   submitAction,
   submitButtonText = "Submit Review",
 }) {
+  const initialContents = {
+    reviewerComments: initialComments,
+    itemsStars: initialStars,
+    dateItemServed: initialDateServed
+  } 
+
+  // Stryker disable all
+  const {
+    register,
+    formState: { errors },
+    handleSubmit,
+  } = useForm({ defaultValues: initialContents || {} });
+  // Stryker restore all
+
+  /*
   const [comments, setComments] = React.useState(initialComments);
   const [stars, setStars] = React.useState(initialStars);
   const [dateServed, setDateServed] = React.useState(() =>
@@ -28,7 +49,9 @@ export default function ReviewForm({
       setDateServed(dateTimeLocalValue(initialDateServed));
     }
   }, [initialComments, initialDateServed, initialStars]);
+  */
 
+  /*
   const handleSubmit = (e) => {
     e.preventDefault();
     submitAction({
@@ -37,9 +60,10 @@ export default function ReviewForm({
       dateItemServed: dateServed,
     });
   };
+  */
 
   return (
-    <Form onSubmit={handleSubmit}>
+    <Form onSubmit={handleSubmit(submitAction)}>
       <Form.Group className="mb-3">
         <Form.Label htmlFor="review-item-name">Item Name</Form.Label>
         <Form.Control
@@ -57,6 +81,7 @@ export default function ReviewForm({
           as="textarea"
           rows={3}
           value={comments}
+          isInvalid={Boolean(errors.requesterEmail)}
           onChange={(e) => setComments(e.target.value)}
         />
       </Form.Group>
