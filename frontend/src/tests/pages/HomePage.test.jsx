@@ -49,6 +49,9 @@ describe("HomePage tests", () => {
     );
 
     await screen.findByTestId("DiningCommonsTable-cell-row-0-col-code");
+    expect(screen.getByText("Dining Commons")).toHaveClass(
+      "dining-commons-title",
+    );
     const dateInput = screen.getByLabelText("Select Date:");
     expect(dateInput).toHaveValue("2025-03-11");
     fireEvent.change(dateInput, { target: { value: "2025-08-16" } });
