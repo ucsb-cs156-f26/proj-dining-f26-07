@@ -90,6 +90,7 @@ public class UCSBDiningMenuItemsService {
     url = url.replace("{date-time}", dateTime);
     url = url.replace("{dining-common-code}", diningCommonCode);
     url = url.replace("{meal-code}", mealCode);
+    String requestUrl = url;
 
     log.info(
         "Fetching menu items for date: {}, dining common: {}, meal: {}",
@@ -97,7 +98,9 @@ public class UCSBDiningMenuItemsService {
         diningCommonCode,
         mealCode);
 
-    ResponseEntity<String> re = restTemplate.exchange(url, HttpMethod.GET, entity, String.class);
+    ResponseEntity<String> re =
+        UCSBApiRetry.execute(
+            () -> restTemplate.exchange(requestUrl, HttpMethod.GET, entity, String.class));
     String retBody = re.getBody();
 
     List<Entree> menuItems = objectMapper.readValue(retBody, new TypeReference<List<Entree>>() {});

@@ -2,6 +2,7 @@ package edu.ucsb.cs156.dining.startup;
 
 import edu.ucsb.cs156.dining.entities.Admin;
 import edu.ucsb.cs156.dining.repositories.AdminRepository;
+import edu.ucsb.cs156.dining.services.MonthlyMenuItemsLoader;
 import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,6 +20,8 @@ public class DiningStartup {
   List<String> adminEmails;
 
   @Autowired AdminRepository adminRepository;
+
+  @Autowired MonthlyMenuItemsLoader monthlyMenuItemsLoader;
 
   /**
    * Called once at application startup time. Loads all emails in ADMIN_EMAILS into the Admin table.
@@ -38,5 +41,7 @@ public class DiningStartup {
             log.error("Error saving admin email {}: {}", email, e.getMessage());
           }
         });
+
+    monthlyMenuItemsLoader.loadCurrentMonth();
   }
 }

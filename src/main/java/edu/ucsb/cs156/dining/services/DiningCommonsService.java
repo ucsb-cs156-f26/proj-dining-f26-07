@@ -81,7 +81,9 @@ public class DiningCommonsService {
     String url = ENDPOINT.replace("{apiHost}", apiHost);
 
     HttpEntity<String> entity = new HttpEntity<>(headers);
-    ResponseEntity<String> re = restTemplate.exchange(url, HttpMethod.GET, entity, String.class);
+    ResponseEntity<String> re =
+        UCSBApiRetry.execute(
+            () -> restTemplate.exchange(url, HttpMethod.GET, entity, String.class));
 
     String retBody = re.getBody();
     List<DiningCommons> commons =

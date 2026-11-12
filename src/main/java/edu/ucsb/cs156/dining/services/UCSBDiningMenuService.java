@@ -57,7 +57,7 @@ public class UCSBDiningMenuService {
       "{apiHost}/dining/menu/v1/{date-time}/{dining-common-code}";
 
   @Cacheable("menu")
-  public String getJSON(String dateTime, String diningCommonCode) throws Exception {
+  public String getJSON(String dateTime, String diningCommonCode) {
 
     HttpHeaders headers = new HttpHeaders();
     headers.setAccept(Arrays.asList(MediaType.APPLICATION_JSON));
@@ -72,21 +72,28 @@ public class UCSBDiningMenuService {
     url = url.replace("{apiHost}", apiHost);
     url = url.replace("{date-time}", dateTime);
     url = url.replace("{dining-common-code}", diningCommonCode);
+    String requestUrl = url;
 
-    log.info("url=" + url);
+    log.info("url={}", requestUrl);
 
     String retVal = "";
     MediaType contentType = null;
     HttpStatus statusCode = null;
 
     try {
-      ResponseEntity<String> re = restTemplate.exchange(url, HttpMethod.GET, entity, String.class);
+      ResponseEntity<String> re =
+          UCSBApiRetry.execute(
+              () -> restTemplate.exchange(requestUrl, HttpMethod.GET, entity, String.class));
       contentType = re.getHeaders().getContentType();
       statusCode = (HttpStatus) re.getStatusCode();
       retVal = re.getBody();
 
       log.info("json: {} contentType: {} statusCode: {}", retVal, contentType, statusCode);
     } catch (HttpClientErrorException | HttpServerErrorException e) {
+      if (e instanceof HttpClientErrorException
+          && e.getStatusCode() == HttpStatus.TOO_MANY_REQUESTS) {
+        throw e;
+      }
       log.info("Dining commons {} closed on {}: {}", diningCommonCode, dateTime, e.getMessage());
       return null;
     }

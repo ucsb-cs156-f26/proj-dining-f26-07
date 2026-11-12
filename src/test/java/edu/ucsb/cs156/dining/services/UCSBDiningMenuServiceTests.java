@@ -2,6 +2,7 @@ package edu.ucsb.cs156.dining.services;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.springframework.test.web.client.match.MockRestRequestMatchers.header;
 import static org.springframework.test.web.client.match.MockRestRequestMatchers.requestTo;
 import static org.springframework.test.web.client.response.MockRestResponseCreators.withBadRequest;
@@ -17,9 +18,13 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.autoconfigure.orm.jpa.AutoConfigureDataJpa;
 import org.springframework.boot.test.autoconfigure.web.client.RestClientTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.test.web.client.ExpectedCount;
 import org.springframework.test.web.client.MockRestServiceServer;
+import org.springframework.test.web.client.ResponseActions;
+import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 
 @RestClientTest(UCSBDiningMenuService.class)
@@ -142,5 +147,25 @@ public class UCSBDiningMenuServiceTests {
     String result = ucs.getJSON(dateTime, diningCommonCode);
 
     assertNull(result);
+  }
+
+  @Test
+  public void test_getJSON_rethrows_429_after_retrying() {
+    String dateTime = "2024-08-16";
+    String diningCommonCode = "carrillo";
+    String expectedURL = UCSBDiningMenuService.ALL_MEAL_TIMES_AT_A_DINING_COMMON_ENDPOINT;
+    expectedURL = expectedURL.replace("{apiHost}", apiHost);
+    expectedURL = expectedURL.replace("{date-time}", dateTime);
+    expectedURL = expectedURL.replace("{dining-common-code}", diningCommonCode);
+
+    ResponseActions responseActions =
+        this.mockRestServiceServer
+            .expect(ExpectedCount.times(4), requestTo(expectedURL))
+            .andExpect(header("ucsb-api-key", apiKey));
+    HttpHeaders responseHeaders = new HttpHeaders();
+    responseHeaders.set("Retry-After", "0");
+    responseActions.andRespond(withStatus(HttpStatus.TOO_MANY_REQUESTS).headers(responseHeaders));
+
+    assertThrows(HttpClientErrorException.class, () -> ucs.getJSON(dateTime, diningCommonCode));
   }
 }
