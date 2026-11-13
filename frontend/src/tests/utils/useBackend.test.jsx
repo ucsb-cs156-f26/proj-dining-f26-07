@@ -114,7 +114,9 @@ describe("utils/useBackend tests", () => {
         defaultOptions: { queries: { retry: false } },
       });
       const wrapper = ({ children }) => (
-        <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
+        <QueryClientProvider client={queryClient}>
+          {children}
+        </QueryClientProvider>
       );
 
       axiosMock = new AxiosMockAdapter(axios);
@@ -217,6 +219,7 @@ describe("utils/useBackend tests", () => {
         "New recommendation Created - id: 17 requester name: testname1",
       );
     });
+
     test("useBackendMutation handles error correctly", async () => {
       // See: https://react-query.tanstack.com/guides/testing#turn-off-retries
       const queryClient = new QueryClient({
@@ -321,6 +324,47 @@ describe("utils/useBackend tests", () => {
       );
       const errorMessage2 = console.error.mock.calls[2][0];
       expect(errorMessage2).toMatch(/onError from mutation.mutate called!/);
+    });
+
+    test("useBackendMutation silently ignores non-array keys", async () => {
+      const queryClient = new QueryClient({
+        defaultOptions: { queries: { retry: false } },
+      });
+      const wrapper = ({ children }) => (
+        <QueryClientProvider client={queryClient}>
+          {children}
+        </QueryClientProvider>
+      );
+
+      queryClient.setQueryData(["/api/reviews/userReviews"], []);
+
+      axiosMock = new AxiosMockAdapter(axios);
+      axiosMock.onDelete("/api/reviews").reply(200, {});
+
+      const objectToAxiosParams = (id) => ({
+        url: "/api/reviews",
+        method: "DELETE",
+        params: { id },
+      });
+
+      const onSuccess = vi.fn();
+
+      const { result } = renderHook(
+        () =>
+          useBackendMutation(
+            objectToAxiosParams,
+            { onSuccess },
+            "/api/reviews/userReviews", // plain string, not an array
+          ),
+        { wrapper },
+      );
+
+      act(() => result.current.mutate(1));
+
+      await waitFor(() => expect(onSuccess).toHaveBeenCalled());
+      expect(
+        queryClient.getQueryState(["/api/reviews/userReviews"]).isInvalidated,
+      ).toBe(false);
     });
   });
 });
