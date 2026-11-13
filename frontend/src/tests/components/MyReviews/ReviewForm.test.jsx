@@ -116,6 +116,8 @@ describe("ReviewForm tests", () => {
 
     const submitButton = screen.getByText(/Submit Review/);
     fireEvent.click(submitButton);
-    expect(await screen.findByText(/Date and time is required/)).toBeInTheDocument();
+    expect(
+      await screen.findByText(/Date and time is required/),
+    ).toBeInTheDocument();
   });
 });
