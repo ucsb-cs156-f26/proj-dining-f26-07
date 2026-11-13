@@ -1,3 +1,4 @@
+import React, { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { Form, Button } from "react-bootstrap";
 
@@ -15,35 +16,51 @@ export default function ReviewForm({
   submitAction,
   submitButtonText = "Submit Review",
 }) {
+  /*
   const initialContents = {
     itemName: initialItemName,
     reviewerComments: initialComments,
     itemsStars: initialStars,
     dateItemServed: dateTimeLocalValue(initialDateServed),
   };
+  */
 
   // Stryker disable all
   const {
     register,
     formState: { errors },
     handleSubmit,
-  } = useForm({ defaultValues: initialContents || {} });
+    setValue,
+  } = useForm({
+    defaultValues: {
+      itemName: initialItemName,
+      reviewerComments: initialComments,
+      itemsStars: initialStars,
+      dateItemServed: dateTimeLocalValue(initialDateServed),
+    },
+  });
   // Stryker restore all
+
+  useEffect(() => {
+    setValue("reviewerComments", initialComments);
+    setValue("itemsStars", initialStars);
+    if (initialDateServed) {
+      setValue("dateItemServed", dateTimeLocalValue(initialDateServed));
+    }
+  }, [setValue, initialComments, initialStars, initialDateServed]);
 
   return (
     <Form onSubmit={handleSubmit(submitAction)}>
-      {initialContents && (
-        <Form.Group className="mb-3">
-          <Form.Label htmlFor="review-item-name">Item Name</Form.Label>
-          <Form.Control
-            id="review-item-name"
-            type="text"
-            {...register("itemName")}
-            value={initialContents.itemName}
-            disabled
-          />
-        </Form.Group>
-      )}
+      <Form.Group className="mb-3">
+        <Form.Label htmlFor="review-item-name">Item Name</Form.Label>
+        <Form.Control
+          id="review-item-name"
+          type="text"
+          {...register("itemName")}
+          value={initialItemName}
+          disabled
+        />
+      </Form.Group>
 
       <Form.Group className="mb-3">
         <Form.Label htmlFor="review-comments">Comments</Form.Label>
@@ -88,7 +105,7 @@ export default function ReviewForm({
           })}
         />
         <Form.Control.Feedback type="invalid">
-          {errors.dateItemServed && "Date and time is required. "}
+          {errors.dateItemServed && "Date and time is required"}
         </Form.Control.Feedback>
       </Form.Group>
 

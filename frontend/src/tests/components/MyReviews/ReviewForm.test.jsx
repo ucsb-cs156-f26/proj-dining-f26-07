@@ -97,4 +97,25 @@ describe("ReviewForm tests", () => {
       "2024-04-03T16:20",
     );
   });
+
+  test("does not accept empty datetime", async () => {
+    const submitAction = vi.fn();
+    render(
+      <ReviewForm
+        initialItemName="Pasta"
+        initialComments="First comment"
+        initialStars={2}
+        initialDateServed=""
+        submitAction={submitAction}
+      />,
+    );
+
+    fireEvent.change(screen.getByLabelText("Date and Time Item was Served"), {
+      target: { value: "" },
+    });
+
+    const submitButton = screen.getByText(/Submit Review/);
+    fireEvent.click(submitButton);
+    expect(await screen.findByText(/Date and time is required/)).toBeInTheDocument();
+  });
 });
