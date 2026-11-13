@@ -108,6 +108,34 @@ describe("utils/useBackend tests", () => {
         "Error communicating with backend via GET on /api/admin/users",
       );
     });
+
+    test("useBackend with no initialData starts with undefined data", async () => {
+      const queryClient = new QueryClient({
+        defaultOptions: { queries: { retry: false } },
+      });
+      const wrapper = ({ children }) => (
+        <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
+      );
+
+      axiosMock = new AxiosMockAdapter(axios);
+      axiosMock.onGet("/api/admin/users").reply(200, [{ id: 1 }]);
+
+      const { result } = renderHook(
+        () =>
+          useBackend(["/api/admin/users"], {
+            method: "GET",
+            url: "/api/admin/users",
+          }),
+        { wrapper },
+      );
+
+      // Before the fetch resolves, there should be no data and no status
+      expect(result.current.data).toBeUndefined();
+      expect(result.current.status).toBeUndefined();
+
+      await waitFor(() => expect(result.current.data).toEqual([{ id: 1 }]));
+      expect(result.current.status).toBe(200);
+    });
   });
 
   describe("utils/useBackend useBackendMutation tests", () => {
