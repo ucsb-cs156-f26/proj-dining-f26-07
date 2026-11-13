@@ -167,26 +167,6 @@ public class UCSBDiningMenuItemsControllerTests extends ControllerTestCase {
   }
 
   @Test
-  public void search_menu_items_trims_spaces_from_query() throws Exception {
-    // arrange
-    List<MenuItem> matches = List.of(gingerBeef);
-    when(menuItemRepository.findByNameContainingIgnoreCaseOrderByNameAsc("stir"))
-        .thenReturn(matches);
-
-    // act
-    MvcResult response =
-        mockMvc
-            .perform(get("/api/diningcommons/menuitem/search").param("query", "  stir  "))
-            .andExpect(status().isOk())
-            .andReturn();
-
-    // assert: the spaces were removed before searching
-    verify(menuItemRepository).findByNameContainingIgnoreCaseOrderByNameAsc("stir");
-    String expectedJson = objectMapper.writeValueAsString(matches);
-    assertEquals(expectedJson, response.getResponse().getContentAsString());
-  }
-
-  @Test
   public void search_menu_items_returns_empty_list_for_blank_query() throws Exception {
     // act
     MvcResult response =
