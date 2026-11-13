@@ -16,15 +16,6 @@ export default function ReviewForm({
   submitAction,
   submitButtonText = "Submit Review",
 }) {
-  /*
-  const initialContents = {
-    itemName: initialItemName,
-    reviewerComments: initialComments,
-    itemsStars: initialStars,
-    dateItemServed: dateTimeLocalValue(initialDateServed),
-  };
-  */
-
   // Stryker disable all
   const {
     register,
