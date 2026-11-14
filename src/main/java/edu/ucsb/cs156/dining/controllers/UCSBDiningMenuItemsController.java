@@ -69,4 +69,18 @@ public class UCSBDiningMenuItemsController extends ApiController {
     }
     return ResponseEntity.ok().body(menuItem.get());
   }
+
+  @Operation(summary = "Search menu items by name (matches part of the name, ignores case)")
+  @GetMapping(value = "/menuitem/search", produces = "application/json")
+  public ResponseEntity<List<MenuItem>> search_menu_items(
+      @Parameter(description = "Text to look for in menu item names, e.g. stir") @RequestParam
+          String query) {
+    String trimmedQuery = query.trim();
+    if (trimmedQuery.isEmpty()) {
+      return ResponseEntity.ok().body(List.of());
+    }
+    List<MenuItem> results =
+        menuItemRepository.findByNameContainingIgnoreCaseOrderByNameAsc(trimmedQuery);
+    return ResponseEntity.ok().body(results);
+  }
 }
