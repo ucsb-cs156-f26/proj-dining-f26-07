@@ -39,6 +39,25 @@ const menuItemFixtures = {
       reviews: null,
     },
   ],
+  // what /api/diningcommons/menuitem/search?query=stir returns
+  searchResults: [
+    {
+      id: 1,
+      name: "Ginger Beef Stir Fry",
+      diningCommonsCode: "carrillo",
+      mealCode: "dinner",
+      station: "Mongolian Grill",
+      reviews: [],
+    },
+    {
+      id: 2,
+      name: "Tofu & Vegetable Stir Fry (vgn)",
+      diningCommonsCode: "carrillo",
+      mealCode: "dinner",
+      station: "Mongolian Grill",
+      reviews: [],
+    },
+  ],
 };
 
 export { menuItemFixtures };

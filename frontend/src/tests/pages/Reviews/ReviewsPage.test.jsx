@@ -100,6 +100,20 @@ describe("ReviewsPage tests", () => {
     });
   });
 
+  test("Review Item button links to the post review page for this item", async () => {
+    const itemid = "7";
+    setupUserOnly();
+    axiosMock
+      .onGet(`/api/reviews/approved/forItem/${itemid}`)
+      .reply(200, ReviewFixtures.threeReviews);
+
+    renderWithRoute(itemid);
+
+    const button = await screen.findByTestId("ReviewsPage-post-review-button");
+    expect(button).toHaveTextContent("Review Item");
+    expect(button).toHaveAttribute("href", "/reviews/post/7");
+  });
+
   test("Error message includes GET method when request fails", async () => {
     const itemId = "7";
     setupUserOnly();
