@@ -1,6 +1,7 @@
 import { useBackend } from "main/utils/useBackend";
 import BasicLayout from "main/layouts/BasicLayout/BasicLayout";
-import { useParams } from "react-router";
+import { Link, useParams } from "react-router";
+import { Button } from "react-bootstrap";
 import ReviewsTable from "main/components/Reviews/ReviewsTable";
 
 export default function ReviewsPage() {
@@ -21,6 +22,14 @@ export default function ReviewsPage() {
     <BasicLayout>
       <div className="pt-2">
         <h1>Reviews for Menu Item {itemid}</h1>
+        <Button
+          variant="warning"
+          as={Link}
+          to={`/reviews/post/${itemid}`}
+          data-testid="ReviewsPage-post-review-button"
+        >
+          Review Item
+        </Button>
         <ReviewsTable reviews={reviews} />
       </div>
     </BasicLayout>
