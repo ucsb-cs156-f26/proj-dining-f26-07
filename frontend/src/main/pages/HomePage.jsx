@@ -44,7 +44,7 @@ export default function HomePage() {
 
   return (
     <BasicLayout>
-      <h1>Dining Commons</h1>
+      <h1 className="dining-commons-title">Dining Commons</h1>
       <p>
         <label htmlFor="dateSelector">Select Date:</label>
         <br></br>
