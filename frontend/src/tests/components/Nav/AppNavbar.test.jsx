@@ -210,6 +210,7 @@ describe("AppNavbar tests", () => {
 
     await screen.findByTestId("AppNavbar");
     expect(screen.queryByTestId(/AppNavbarLocalhost/i)).toBeNull();
+    expect(screen.getByTestId("AppNavbar")).toHaveClass("dining-navbar");
   });
 
   test("when oauthlogin undefined, default value is used", async () => {
