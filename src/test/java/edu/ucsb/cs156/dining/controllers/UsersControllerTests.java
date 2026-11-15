@@ -16,6 +16,7 @@ import edu.ucsb.cs156.dining.models.UserDTO;
 import edu.ucsb.cs156.dining.repositories.AdminRepository;
 import edu.ucsb.cs156.dining.repositories.ModeratorRepository;
 import edu.ucsb.cs156.dining.repositories.UserRepository;
+import edu.ucsb.cs156.dining.services.UserDataDTOService;
 import edu.ucsb.cs156.dining.statuses.ModerationStatus;
 import edu.ucsb.cs156.dining.testconfig.TestConfig;
 import java.time.LocalDate;
@@ -28,6 +29,9 @@ import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.web.servlet.MvcResult;
@@ -41,6 +45,7 @@ public class UsersControllerTests extends ControllerTestCase {
   @MockBean UserRepository userRepository;
   @MockBean AdminRepository adminRepository;
   @MockBean ModeratorRepository moderatorRepository;
+  @MockBean UserDataDTOService userDataDTOService;
 
   @Test
   public void users__logged_out() throws Exception {
@@ -420,5 +425,52 @@ public class UsersControllerTests extends ControllerTestCase {
         .findByStatusAndProposedAliasNotNull(ModerationStatus.AWAITING_REVIEW);
 
     assertEquals(expectedJson, response.getResponse().getContentAsString());
+  }
+
+  @Test
+  public void pagedUsers__logged_out() throws Exception {
+    mockMvc.perform(get("/api/admin/users/paged")).andExpect(status().isForbidden());
+  }
+
+  @Test
+  @WithMockUser(roles = {"USER"})
+  public void pagedUsers__regular_user() throws Exception {
+    mockMvc.perform(get("/api/admin/users/paged")).andExpect(status().isForbidden());
+  }
+
+  @Test
+  @WithMockUser(roles = {"ADMIN", "USER"})
+  public void pagedUsers__admin_logged_in() throws Exception {
+    // Arrange: one user on the second page
+    User user =
+        User.builder()
+            .id(3L)
+            .email("user3@example.org")
+            .givenName("Test")
+            .familyName("User")
+            .build();
+
+    UserDTO userDTO = new UserDTO(user, false, true);
+
+    PageRequest pageable = PageRequest.of(1, 2);
+
+    Page<UserDTO> expectedPage = new PageImpl<>(List.of(userDTO), pageable, 3);
+
+    when(userDataDTOService.getUserDataDTOs(pageable)).thenReturn(expectedPage);
+
+    // Act and assert
+    mockMvc
+        .perform(get("/api/admin/users/paged").param("page", "1").param("size", "2"))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.content[0].id").value(3))
+        .andExpect(jsonPath("$.content[0].email").value("user3@example.org"))
+        .andExpect(jsonPath("$.content[0].admin").value(false))
+        .andExpect(jsonPath("$.content[0].moderator").value(true))
+        .andExpect(jsonPath("$.number").value(1))
+        .andExpect(jsonPath("$.size").value(2))
+        .andExpect(jsonPath("$.totalElements").value(3))
+        .andExpect(jsonPath("$.totalPages").value(2));
+
+    verify(userDataDTOService, times(1)).getUserDataDTOs(pageable);
   }
 }
