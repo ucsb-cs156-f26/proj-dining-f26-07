@@ -1,4 +1,5 @@
 import React, { useEffect } from "react";
+import { useForm } from "react-hook-form";
 import { Form, Button } from "react-bootstrap";
 
 function dateTimeLocalValue(dateTime) {
@@ -15,36 +16,38 @@ export default function ReviewForm({
   submitAction,
   submitButtonText = "Submit Review",
 }) {
-  const [comments, setComments] = React.useState(initialComments);
-  const [stars, setStars] = React.useState(initialStars);
-  const [dateServed, setDateServed] = React.useState(() =>
-    dateTimeLocalValue(initialDateServed),
-  );
+  // Stryker disable all
+  const {
+    register,
+    formState: { errors },
+    handleSubmit,
+    setValue,
+  } = useForm({
+    defaultValues: {
+      itemName: initialItemName,
+      reviewerComments: initialComments,
+      itemsStars: initialStars,
+      dateItemServed: dateTimeLocalValue(initialDateServed),
+    },
+  });
+  // Stryker restore all
 
   useEffect(() => {
-    setComments(initialComments);
-    setStars(initialStars);
+    setValue("reviewerComments", initialComments);
+    setValue("itemsStars", initialStars);
     if (initialDateServed) {
-      setDateServed(dateTimeLocalValue(initialDateServed));
+      setValue("dateItemServed", dateTimeLocalValue(initialDateServed));
     }
-  }, [initialComments, initialDateServed, initialStars]);
-
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    submitAction({
-      reviewerComments: comments,
-      itemsStars: stars,
-      dateItemServed: dateServed,
-    });
-  };
+  }, [setValue, initialComments, initialStars, initialDateServed]);
 
   return (
-    <Form onSubmit={handleSubmit}>
+    <Form onSubmit={handleSubmit(submitAction)}>
       <Form.Group className="mb-3">
         <Form.Label htmlFor="review-item-name">Item Name</Form.Label>
         <Form.Control
           id="review-item-name"
           type="text"
+          {...register("itemName")}
           value={initialItemName}
           disabled
         />
@@ -54,10 +57,11 @@ export default function ReviewForm({
         <Form.Label htmlFor="review-comments">Comments</Form.Label>
         <Form.Control
           id="review-comments"
+          type="text"
           as="textarea"
           rows={3}
-          value={comments}
-          onChange={(e) => setComments(e.target.value)}
+          isInvalid={Boolean(errors.reviewerComments)}
+          {...register("reviewerComments")}
         />
       </Form.Group>
 
@@ -65,8 +69,11 @@ export default function ReviewForm({
         <Form.Label htmlFor="review-stars">Stars (1 to 5)</Form.Label>
         <Form.Select
           id="review-stars"
-          value={stars}
-          onChange={(e) => setStars(Number(e.target.value))}
+          type="number"
+          isInvalid={Boolean(errors.itemsStars)}
+          {...register("itemsStars", {
+            valueAsNumber: true,
+          })}
         >
           {[1, 2, 3, 4, 5].map((num) => (
             <option key={num} value={num}>
@@ -83,9 +90,14 @@ export default function ReviewForm({
         <Form.Control
           id="review-date"
           type="datetime-local"
-          value={dateServed}
-          onChange={(e) => setDateServed(e.target.value)}
+          isInvalid={Boolean(errors.dateItemServed)}
+          {...register("dateItemServed", {
+            required: true,
+          })}
         />
+        <Form.Control.Feedback type="invalid">
+          {errors.dateItemServed && "Date and time is required"}
+        </Form.Control.Feedback>
       </Form.Group>
 
       <Button type="submit">{submitButtonText}</Button>
