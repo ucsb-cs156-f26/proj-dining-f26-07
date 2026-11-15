@@ -28,22 +28,34 @@ reliable for this when both apps live on the same Dokku host, since they then sh
 bridge network and the caller's IP is just an internal address that means nothing outside the host.
 Skipping this step doesn't break anything; the app still works, it just won't self-identify.
 
-Substitute your own app name for `dining` below. Note this uses `dokku docker-options:add` rather than
-`dokku config:set` on purpose: it lets dokku fill in the app's own name and host automatically, rather
-than requiring you to type the app name a second time as a literal value — a command like
-`dokku config:set dining-qa APP_NAME=dining-qa` has two places the app name has to match, and a
-copy/paste slip (e.g. running it against `dining-qa` but leaving `dining` in the value) fails silently.
-
+Substitute your own app name for `dining` below and your own dokku number for `00`. Note this uses `dokku config:set` rather than `dokku docker-options:add` on purpose. The latter lets dokku fill in the app's own name and host automatically, rather
+than requiring you to type the app name a second time as a literal value;
 ```
 dokku docker-options:add dining deploy,run '--env=APP_NAME=$(echo $DOCKER_RUN_LABEL_ARGS | sed -n "s/.*--label=com\.dokku\.app-name=\([^ ]*\).*/\1/p")'
 dokku docker-options:add dining deploy,run '--env=APP_HOSTNAME=$(hostname -f)'
 dokku ps:rebuild dining
 ```
-
-Confirm it worked:
+ however here this sets APP_NAME and APP_HOSTNAME to the literal text values
+ ```
+ APP_HOSTNAME=$(hostname -f)
+APP_NAME=$(echo $DOCKER_RUN_LABEL_ARGS | sed -n "s/.*--label=com\.dokku\.app-name=\([^ ]*\).*/\1/p")
+```
+rather than the correct name and host name, so we use `config:set`.
 
 ```
+dokku config:set dining APP_NAME=dining APP_HOSTNAME=dokku-00.cs.ucsb.edu
+dokku ps:rebuild dining
+```
+
+Confirm it worked:
+```
 dokku enter dining web env | grep -E 'APP_NAME|APP_HOSTNAME'
+```
+
+Expected result:
+```
+APP_NAME=dining
+APP_HOSTNAME=dokku-00.cs.ucsb.edu
 ```
 
 **Note:** the `APP_NAME` line relies on an internal, undocumented dokku implementation detail (the
