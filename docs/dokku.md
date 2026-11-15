@@ -28,7 +28,8 @@ reliable for this when both apps live on the same Dokku host, since they then sh
 bridge network and the caller's IP is just an internal address that means nothing outside the host.
 Skipping this step doesn't break anything; the app still works, it just won't self-identify.
 
-Substitute your own app name for `dining` below and your own dokku number for `00`. Note this uses `dokku config:set` rather than `dokku docker-options:add` on purpose. The latter lets dokku fill in the app's own name and host automatically, rather
+Substitute your own app name for `dining` below. 
+Note this uses `dokku config:set` rather than `dokku docker-options:add` on purpose. The latter lets dokku fill in the app's own name and host automatically, rather
 than requiring you to type the app name a second time as a literal value;
 ```
 dokku docker-options:add dining deploy,run '--env=APP_NAME=$(echo $DOCKER_RUN_LABEL_ARGS | sed -n "s/.*--label=com\.dokku\.app-name=\([^ ]*\).*/\1/p")'
@@ -41,6 +42,7 @@ dokku ps:rebuild dining
 APP_NAME=$(echo $DOCKER_RUN_LABEL_ARGS | sed -n "s/.*--label=com\.dokku\.app-name=\([^ ]*\).*/\1/p")
 ```
 rather than the correct name and host name, so we use `config:set`.
+Again, substitute your own app name for `dining` below and substitute your own dokku number for `00`.
 
 ```
 dokku config:set dining APP_NAME=dining APP_HOSTNAME=dokku-00.cs.ucsb.edu
