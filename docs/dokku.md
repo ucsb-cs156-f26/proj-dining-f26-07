@@ -30,18 +30,20 @@ Skipping this step doesn't break anything; the app still works, it just won't se
 
 Substitute your own app name for `dining` below. 
 Note this uses `dokku config:set` rather than `dokku docker-options:add` on purpose. The latter lets dokku fill in the app's own name and host automatically, rather
-than requiring you to type the app name a second time as a literal value;
+than requiring you to type the app name a second time as a literal value
+
+Notice how `docker-option:add` sets APP_NAME and APP_HOSTNAME to the literal text values, we DO NOT WANT THIS
 ```
 dokku docker-options:add dining deploy,run '--env=APP_NAME=$(echo $DOCKER_RUN_LABEL_ARGS | sed -n "s/.*--label=com\.dokku\.app-name=\([^ ]*\).*/\1/p")'
 dokku docker-options:add dining deploy,run '--env=APP_HOSTNAME=$(hostname -f)'
 dokku ps:rebuild dining
 ```
- however here this sets APP_NAME and APP_HOSTNAME to the literal text values
- ```
- APP_HOSTNAME=$(hostname -f)
+```
+APP_HOSTNAME=$(hostname -f)
 APP_NAME=$(echo $DOCKER_RUN_LABEL_ARGS | sed -n "s/.*--label=com\.dokku\.app-name=\([^ ]*\).*/\1/p")
 ```
-rather than the correct name and host name, so we use `config:set`.
+So we use `config:set`.
+
 Again, substitute your own app name for `dining` below and substitute your own dokku number for `00`.
 
 ```
