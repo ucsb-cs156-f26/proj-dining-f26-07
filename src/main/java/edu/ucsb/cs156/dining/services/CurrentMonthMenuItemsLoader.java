@@ -109,7 +109,7 @@ public class CurrentMonthMenuItemsLoader {
     }
   }
 
-  private Duration retryDelay(HttpClientErrorException.TooManyRequests exception, int retry) {
+  Duration retryDelay(HttpClientErrorException.TooManyRequests exception, int retry) {
     HttpHeaders headers = exception.getResponseHeaders();
     String retryAfter = headers == null ? null : headers.getFirst(HttpHeaders.RETRY_AFTER);
     if (retryAfter != null) {

@@ -1,5 +1,6 @@
 package edu.ucsb.cs156.dining.services;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.anyList;
@@ -14,6 +15,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import edu.ucsb.cs156.dining.models.DiningCommons;
 import edu.ucsb.cs156.dining.models.Entree;
 import java.nio.charset.StandardCharsets;
+import java.time.Duration;
 import java.time.YearMonth;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
@@ -48,18 +50,18 @@ class CurrentMonthMenuItemsLoaderTests {
   @Test
   void loadsAndPersistsAvailableMenuItemsForEveryDayInTheCurrentMonth() throws Exception {
     CurrentMonthMenuItemsLoader loader = createLoader("configured-key");
+    List<Entree> entrees = List.of(Entree.builder().name("Pasta").station("Main").build());
     when(diningCommonsService.get())
         .thenReturn(List.of(DiningCommons.builder().code("ortega").build()));
     when(diningMenuService.getJSON(anyString(), eq("ortega"))).thenReturn("[{\"code\":\"lunch\"}]");
-    when(diningMenuItemsService.get(anyString(), eq("ortega"), eq("lunch")))
-        .thenReturn(List.of(Entree.builder().name("Pasta").station("Main").build()));
+    when(diningMenuItemsService.get(anyString(), eq("ortega"), eq("lunch"))).thenReturn(entrees);
 
     loader.loadCurrentMonth();
 
     int daysThisMonth = YearMonth.now().lengthOfMonth();
     verify(diningMenuService, times(daysThisMonth)).getJSON(anyString(), eq("ortega"));
     verify(diningMenuItemsService, times(daysThisMonth))
-        .getOrCreateMenuItems(eq("ortega"), eq("lunch"), org.mockito.ArgumentMatchers.anyList());
+        .getOrCreateMenuItems(eq("ortega"), eq("lunch"), eq(entrees));
   }
 
   @Test
@@ -163,6 +165,15 @@ class CurrentMonthMenuItemsLoaderTests {
         DateTimeFormatter.RFC_1123_DATE_TIME.format(
             ZonedDateTime.now(ZoneOffset.UTC).plusSeconds(1)));
     assertRetriesWith(rateLimitedWithHeaders(headers));
+  }
+
+  @Test
+  void doublesExponentialBackoffOnLaterRetries() {
+    CurrentMonthMenuItemsLoader loader = createLoader("configured-key");
+    HttpClientErrorException.TooManyRequests rateLimit = rateLimitedWithHeaders(null);
+
+    assertEquals(Duration.ofSeconds(1), loader.retryDelay(rateLimit, 0));
+    assertEquals(Duration.ofSeconds(2), loader.retryDelay(rateLimit, 1));
   }
 
   @Test
