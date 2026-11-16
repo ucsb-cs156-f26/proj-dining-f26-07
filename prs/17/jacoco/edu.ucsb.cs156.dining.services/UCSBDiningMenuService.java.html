@@ -57,7 +57,7 @@ public class UCSBDiningMenuService {
       &quot;{apiHost}/dining/menu/v1/{date-time}/{dining-common-code}&quot;;
 
   @Cacheable(&quot;menu&quot;)
-  public String getJSON(String dateTime, String diningCommonCode) {
+  public String getJSON(String dateTime, String diningCommonCode) throws Exception {
 
 <span class="fc" id="L62">    HttpHeaders headers = new HttpHeaders();</span>
 <span class="fc" id="L63">    headers.setAccept(Arrays.asList(MediaType.APPLICATION_JSON));</span>
@@ -72,33 +72,28 @@ public class UCSBDiningMenuService {
 <span class="fc" id="L72">    url = url.replace(&quot;{apiHost}&quot;, apiHost);</span>
 <span class="fc" id="L73">    url = url.replace(&quot;{date-time}&quot;, dateTime);</span>
 <span class="fc" id="L74">    url = url.replace(&quot;{dining-common-code}&quot;, diningCommonCode);</span>
-<span class="fc" id="L75">    String requestUrl = url;</span>
 
-<span class="fc" id="L77">    log.info(&quot;url={}&quot;, requestUrl);</span>
+<span class="fc" id="L76">    log.info(&quot;url=&quot; + url);</span>
 
-<span class="fc" id="L79">    String retVal = &quot;&quot;;</span>
-<span class="fc" id="L80">    MediaType contentType = null;</span>
-<span class="fc" id="L81">    HttpStatus statusCode = null;</span>
+<span class="fc" id="L78">    String retVal = &quot;&quot;;</span>
+<span class="fc" id="L79">    MediaType contentType = null;</span>
+<span class="fc" id="L80">    HttpStatus statusCode = null;</span>
 
     try {
-<span class="fc" id="L84">      ResponseEntity&lt;String&gt; re =</span>
-<span class="fc" id="L85">          UCSBApiRetry.execute(</span>
-<span class="fc" id="L86">              () -&gt; restTemplate.exchange(requestUrl, HttpMethod.GET, entity, String.class));</span>
-<span class="fc" id="L87">      contentType = re.getHeaders().getContentType();</span>
-<span class="fc" id="L88">      statusCode = (HttpStatus) re.getStatusCode();</span>
-<span class="fc" id="L89">      retVal = re.getBody();</span>
+<span class="fc" id="L83">      ResponseEntity&lt;String&gt; re = restTemplate.exchange(url, HttpMethod.GET, entity, String.class);</span>
+<span class="fc" id="L84">      contentType = re.getHeaders().getContentType();</span>
+<span class="fc" id="L85">      statusCode = (HttpStatus) re.getStatusCode();</span>
+<span class="fc" id="L86">      retVal = re.getBody();</span>
 
-<span class="fc" id="L91">      log.info(&quot;json: {} contentType: {} statusCode: {}&quot;, retVal, contentType, statusCode);</span>
-<span class="fc" id="L92">    } catch (HttpClientErrorException | HttpServerErrorException e) {</span>
-<span class="fc bfc" id="L93" title="All 2 branches covered.">      if (e instanceof HttpClientErrorException</span>
-<span class="fc bfc" id="L94" title="All 2 branches covered.">          &amp;&amp; e.getStatusCode() == HttpStatus.TOO_MANY_REQUESTS) {</span>
-<span class="fc" id="L95">        throw e;</span>
-      }
-<span class="fc" id="L97">      log.info(&quot;Dining commons {} closed on {}: {}&quot;, diningCommonCode, dateTime, e.getMessage());</span>
-<span class="fc" id="L98">      return null;</span>
-<span class="fc" id="L99">    }</span>
+<span class="fc" id="L88">      log.info(&quot;json: {} contentType: {} statusCode: {}&quot;, retVal, contentType, statusCode);</span>
+<span class="fc" id="L89">    } catch (HttpClientErrorException.TooManyRequests e) {</span>
+<span class="fc" id="L90">      throw e;</span>
+<span class="fc" id="L91">    } catch (HttpClientErrorException | HttpServerErrorException e) {</span>
+<span class="fc" id="L92">      log.info(&quot;Dining commons {} closed on {}: {}&quot;, diningCommonCode, dateTime, e.getMessage());</span>
+<span class="fc" id="L93">      return null;</span>
+<span class="fc" id="L94">    }</span>
 
-<span class="fc" id="L101">    return retVal;</span>
+<span class="fc" id="L96">    return retVal;</span>
   }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.15.202606040825</span></div></body></html>

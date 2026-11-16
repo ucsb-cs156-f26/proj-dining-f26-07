@@ -90,52 +90,49 @@ public class UCSBDiningMenuItemsService {
 <span class="fc" id="L90">    url = url.replace(&quot;{date-time}&quot;, dateTime);</span>
 <span class="fc" id="L91">    url = url.replace(&quot;{dining-common-code}&quot;, diningCommonCode);</span>
 <span class="fc" id="L92">    url = url.replace(&quot;{meal-code}&quot;, mealCode);</span>
-<span class="fc" id="L93">    String requestUrl = url;</span>
 
-<span class="fc" id="L95">    log.info(</span>
+<span class="fc" id="L94">    log.info(</span>
         &quot;Fetching menu items for date: {}, dining common: {}, meal: {}&quot;,
         dateTime,
         diningCommonCode,
         mealCode);
 
-<span class="fc" id="L101">    ResponseEntity&lt;String&gt; re =</span>
-<span class="fc" id="L102">        UCSBApiRetry.execute(</span>
-<span class="fc" id="L103">            () -&gt; restTemplate.exchange(requestUrl, HttpMethod.GET, entity, String.class));</span>
-<span class="fc" id="L104">    String retBody = re.getBody();</span>
+<span class="fc" id="L100">    ResponseEntity&lt;String&gt; re = restTemplate.exchange(url, HttpMethod.GET, entity, String.class);</span>
+<span class="fc" id="L101">    String retBody = re.getBody();</span>
 
-<span class="fc" id="L106">    List&lt;Entree&gt; menuItems = objectMapper.readValue(retBody, new TypeReference&lt;List&lt;Entree&gt;&gt;() {});</span>
+<span class="fc" id="L103">    List&lt;Entree&gt; menuItems = objectMapper.readValue(retBody, new TypeReference&lt;List&lt;Entree&gt;&gt;() {});</span>
 
-<span class="fc" id="L108">    return menuItems;</span>
+<span class="fc" id="L105">    return menuItems;</span>
   }
 
   @Transactional
   public List&lt;MenuItem&gt; getOrCreateMenuItems(
       String diningCommonCode, String mealCode, List&lt;Entree&gt; entrees) {
-<span class="fc" id="L114">    List&lt;MenuItem&gt; existingItems =</span>
-<span class="fc" id="L115">        menuItemRepository.findExistingEntrees(diningCommonCode, mealCode, entrees);</span>
-<span class="fc" id="L116">    Map&lt;String, MenuItem&gt; existingItemsMap =</span>
-<span class="fc" id="L117">        existingItems.stream()</span>
-<span class="fc" id="L118">            .collect(</span>
-<span class="fc" id="L119">                Collectors.toMap(</span>
-<span class="fc" id="L120">                    (item) -&gt; item.getStation() + &quot;:&quot; + item.getName(), Function.identity()));</span>
+<span class="fc" id="L111">    List&lt;MenuItem&gt; existingItems =</span>
+<span class="fc" id="L112">        menuItemRepository.findExistingEntrees(diningCommonCode, mealCode, entrees);</span>
+<span class="fc" id="L113">    Map&lt;String, MenuItem&gt; existingItemsMap =</span>
+<span class="fc" id="L114">        existingItems.stream()</span>
+<span class="fc" id="L115">            .collect(</span>
+<span class="fc" id="L116">                Collectors.toMap(</span>
+<span class="fc" id="L117">                    (item) -&gt; item.getStation() + &quot;:&quot; + item.getName(), Function.identity()));</span>
 
-<span class="fc bfc" id="L122" title="All 2 branches covered.">    for (Entree selected : entrees) {</span>
-<span class="fc bfc" id="L123" title="All 2 branches covered.">      if (existingItemsMap.containsKey(selected.getStation() + &quot;:&quot; + selected.getName())) {</span>
-<span class="fc" id="L124">        continue;</span>
+<span class="fc bfc" id="L119" title="All 2 branches covered.">    for (Entree selected : entrees) {</span>
+<span class="fc bfc" id="L120" title="All 2 branches covered.">      if (existingItemsMap.containsKey(selected.getStation() + &quot;:&quot; + selected.getName())) {</span>
+<span class="fc" id="L121">        continue;</span>
       } else {
         MenuItem created =
-<span class="fc" id="L127">            MenuItem.builder()</span>
-<span class="fc" id="L128">                .diningCommonsCode(diningCommonCode)</span>
-<span class="fc" id="L129">                .mealCode(mealCode)</span>
-<span class="fc" id="L130">                .station(selected.getStation())</span>
-<span class="fc" id="L131">                .name(selected.getName())</span>
-<span class="fc" id="L132">                .build();</span>
-<span class="fc" id="L133">        menuItemRepository.save(created);</span>
-<span class="fc" id="L134">        existingItems.add(created);</span>
+<span class="fc" id="L124">            MenuItem.builder()</span>
+<span class="fc" id="L125">                .diningCommonsCode(diningCommonCode)</span>
+<span class="fc" id="L126">                .mealCode(mealCode)</span>
+<span class="fc" id="L127">                .station(selected.getStation())</span>
+<span class="fc" id="L128">                .name(selected.getName())</span>
+<span class="fc" id="L129">                .build();</span>
+<span class="fc" id="L130">        menuItemRepository.save(created);</span>
+<span class="fc" id="L131">        existingItems.add(created);</span>
       }
-<span class="fc" id="L136">    }</span>
+<span class="fc" id="L133">    }</span>
 
-<span class="fc" id="L138">    return existingItems;</span>
+<span class="fc" id="L135">    return existingItems;</span>
   }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.15.202606040825</span></div></body></html>

@@ -69,5 +69,19 @@ import org.springframework.web.bind.annotation.RestController;
     }
 <span class="fc" id="L70">    return ResponseEntity.ok().body(menuItem.get());</span>
   }
+
+  @Operation(summary = &quot;Search menu items by name (matches part of the name, ignores case)&quot;)
+  @GetMapping(value = &quot;/menuitem/search&quot;, produces = &quot;application/json&quot;)
+  public ResponseEntity&lt;List&lt;MenuItem&gt;&gt; search_menu_items(
+      @Parameter(description = &quot;Text to look for in menu item names, e.g. stir&quot;) @RequestParam
+          String query) {
+<span class="fc" id="L78">    String trimmedQuery = query.trim();</span>
+<span class="fc bfc" id="L79" title="All 2 branches covered.">    if (trimmedQuery.isEmpty()) {</span>
+<span class="fc" id="L80">      return ResponseEntity.ok().body(List.of());</span>
+    }
+<span class="fc" id="L82">    List&lt;MenuItem&gt; results =</span>
+<span class="fc" id="L83">        menuItemRepository.findByNameContainingIgnoreCaseOrderByNameAsc(trimmedQuery);</span>
+<span class="fc" id="L84">    return ResponseEntity.ok().body(results);</span>
+  }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.15.202606040825</span></div></body></html>
