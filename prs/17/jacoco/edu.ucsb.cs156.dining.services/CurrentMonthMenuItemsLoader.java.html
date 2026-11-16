@@ -44,7 +44,7 @@ public class CurrentMonthMenuItemsLoader {
 <span class="fc" id="L44">  }</span>
 
   public void loadCurrentMonth() throws Exception {
-<span class="pc bpc" id="L47" title="1 of 6 branches missed.">    if (apiKey == null || apiKey.isBlank() || SAMPLE_API_KEY.equalsIgnoreCase(apiKey.trim())) {</span>
+<span class="fc bfc" id="L47" title="All 6 branches covered.">    if (apiKey == null || apiKey.isBlank() || SAMPLE_API_KEY.equalsIgnoreCase(apiKey.trim())) {</span>
 <span class="fc" id="L48">      log.warn(&quot;Skipping current-month menu load because the UCSB API key is not configured&quot;);</span>
 <span class="fc" id="L49">      return;</span>
     }
@@ -63,21 +63,21 @@ public class CurrentMonthMenuItemsLoader {
   private void loadMenuItems(String date, String diningCommonCode) throws Exception {
 <span class="fc" id="L64">    String menuJson =</span>
 <span class="fc" id="L65">        callWithRateLimitRetry(() -&gt; diningMenuService.getJSON(date, diningCommonCode));</span>
-<span class="pc bpc" id="L66" title="1 of 2 branches missed.">    if (menuJson == null) {</span>
-<span class="nc" id="L67">      return;</span>
+<span class="fc bfc" id="L66" title="All 2 branches covered.">    if (menuJson == null) {</span>
+<span class="fc" id="L67">      return;</span>
     }
 
 <span class="fc" id="L70">    JsonNode meals = objectMapper.readTree(menuJson);</span>
-<span class="pc bpc" id="L71" title="1 of 2 branches missed.">    if (!meals.isArray()) {</span>
-<span class="nc" id="L72">      throw new IllegalStateException(</span>
+<span class="fc bfc" id="L71" title="All 2 branches covered.">    if (!meals.isArray()) {</span>
+<span class="fc" id="L72">      throw new IllegalStateException(</span>
           &quot;Expected a JSON array of meals for dining common &quot; + diningCommonCode + &quot; on &quot; + date);
     }
 
 <span class="fc bfc" id="L76" title="All 2 branches covered.">    for (JsonNode meal : meals) {</span>
 <span class="fc" id="L77">      String mealCode = meal.path(&quot;code&quot;).asText();</span>
-<span class="pc bpc" id="L78" title="1 of 2 branches missed.">      if (mealCode.isBlank()) {</span>
-<span class="nc" id="L79">        log.warn(&quot;Skipping meal without a code for dining common {} on {}&quot;, diningCommonCode, date);</span>
-<span class="nc" id="L80">        continue;</span>
+<span class="fc bfc" id="L78" title="All 2 branches covered.">      if (mealCode.isBlank()) {</span>
+<span class="fc" id="L79">        log.warn(&quot;Skipping meal without a code for dining common {} on {}&quot;, diningCommonCode, date);</span>
+<span class="fc" id="L80">        continue;</span>
       }
 
 <span class="fc" id="L83">      List&lt;Entree&gt; entrees =</span>
@@ -92,17 +92,17 @@ public class CurrentMonthMenuItemsLoader {
       try {
 <span class="fc" id="L93">        return apiCall.call();</span>
 <span class="fc" id="L94">      } catch (HttpClientErrorException.TooManyRequests e) {</span>
-<span class="pc bpc" id="L95" title="1 of 2 branches missed.">        if (retry &gt;= MAX_RATE_LIMIT_RETRIES) {</span>
-<span class="nc" id="L96">          throw e;</span>
+<span class="fc bfc" id="L95" title="All 2 branches covered.">        if (retry &gt;= MAX_RATE_LIMIT_RETRIES) {</span>
+<span class="fc" id="L96">          throw e;</span>
         }
 
 <span class="fc" id="L99">        Duration delay = retryDelay(e, retry);</span>
 <span class="fc" id="L100">        log.warn(&quot;UCSB API rate limited the request; retrying in {} seconds&quot;, delay.toSeconds());</span>
         try {
 <span class="fc" id="L102">          Thread.sleep(delay.toMillis());</span>
-<span class="nc" id="L103">        } catch (InterruptedException interruptedException) {</span>
-<span class="nc" id="L104">          Thread.currentThread().interrupt();</span>
-<span class="nc" id="L105">          throw new IllegalStateException(</span>
+<span class="fc" id="L103">        } catch (InterruptedException interruptedException) {</span>
+<span class="fc" id="L104">          Thread.currentThread().interrupt();</span>
+<span class="fc" id="L105">          throw new IllegalStateException(</span>
               &quot;Interrupted while backing off from UCSB API rate limit&quot;, interruptedException);
 <span class="fc" id="L107">        }</span>
       }
@@ -111,23 +111,23 @@ public class CurrentMonthMenuItemsLoader {
 
   private Duration retryDelay(HttpClientErrorException.TooManyRequests exception, int retry) {
 <span class="fc" id="L113">    HttpHeaders headers = exception.getResponseHeaders();</span>
-<span class="pc bpc" id="L114" title="1 of 2 branches missed.">    String retryAfter = headers == null ? null : headers.getFirst(HttpHeaders.RETRY_AFTER);</span>
-<span class="pc bpc" id="L115" title="1 of 2 branches missed.">    if (retryAfter != null) {</span>
+<span class="fc bfc" id="L114" title="All 2 branches covered.">    String retryAfter = headers == null ? null : headers.getFirst(HttpHeaders.RETRY_AFTER);</span>
+<span class="fc bfc" id="L115" title="All 2 branches covered.">    if (retryAfter != null) {</span>
       try {
 <span class="fc" id="L117">        return Duration.ofSeconds(Math.max(0, Long.parseLong(retryAfter)));</span>
-<span class="nc" id="L118">      } catch (NumberFormatException ignored) {</span>
+<span class="fc" id="L118">      } catch (NumberFormatException ignored) {</span>
         try {
-<span class="nc" id="L120">          Instant retryAt =</span>
-<span class="nc" id="L121">              ZonedDateTime.parse(retryAfter, DateTimeFormatter.RFC_1123_DATE_TIME).toInstant();</span>
-<span class="nc" id="L122">          Duration delay = Duration.between(Instant.now(), retryAt);</span>
-<span class="nc bnc" id="L123" title="All 2 branches missed.">          return delay.isNegative() ? Duration.ZERO : delay;</span>
-<span class="nc" id="L124">        } catch (DateTimeParseException ignoredDate) {</span>
-<span class="nc" id="L125">          log.warn(&quot;Ignoring unrecognized UCSB API Retry-After value&quot;);</span>
+<span class="fc" id="L120">          Instant retryAt =</span>
+<span class="fc" id="L121">              ZonedDateTime.parse(retryAfter, DateTimeFormatter.RFC_1123_DATE_TIME).toInstant();</span>
+<span class="fc" id="L122">          Duration delay = Duration.between(Instant.now(), retryAt);</span>
+<span class="fc bfc" id="L123" title="All 2 branches covered.">          return delay.isNegative() ? Duration.ZERO : delay;</span>
+<span class="fc" id="L124">        } catch (DateTimeParseException ignoredDate) {</span>
+<span class="fc" id="L125">          log.warn(&quot;Ignoring unrecognized UCSB API Retry-After value&quot;);</span>
         }
       }
     }
 
-<span class="nc" id="L130">    return Duration.ofSeconds(1L &lt;&lt; retry);</span>
+<span class="fc" id="L130">    return Duration.ofSeconds(1L &lt;&lt; retry);</span>
   }
 
   @FunctionalInterface
