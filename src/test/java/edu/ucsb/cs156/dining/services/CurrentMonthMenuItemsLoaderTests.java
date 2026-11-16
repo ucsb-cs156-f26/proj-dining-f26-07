@@ -1,0 +1,102 @@
+package edu.ucsb.cs156.dining.services;
+
+import static org.mockito.ArgumentMatchers.anyList;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+import edu.ucsb.cs156.dining.models.DiningCommons;
+import edu.ucsb.cs156.dining.models.Entree;
+import java.nio.charset.StandardCharsets;
+import java.time.YearMonth;
+import java.util.List;
+import org.junit.jupiter.api.Test;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.client.HttpClientErrorException;
+
+class CurrentMonthMenuItemsLoaderTests {
+
+  private final DiningCommonsService diningCommonsService =
+      org.mockito.Mockito.mock(DiningCommonsService.class);
+  private final UCSBDiningMenuService diningMenuService =
+      org.mockito.Mockito.mock(UCSBDiningMenuService.class);
+  private final UCSBDiningMenuItemsService diningMenuItemsService =
+      org.mockito.Mockito.mock(UCSBDiningMenuItemsService.class);
+
+  @Test
+  void doesNotCallUcsbApiWhenApiKeyIsNotConfigured() throws Exception {
+    for (String apiKey : List.of("  ", "see-instructions-in-readme")) {
+      CurrentMonthMenuItemsLoader loader = createLoader(apiKey);
+      loader.loadCurrentMonth();
+    }
+
+    verify(diningCommonsService, never()).get();
+    verify(diningMenuService, never()).getJSON(anyString(), anyString());
+    verify(diningMenuItemsService, never()).get(anyString(), anyString(), anyString());
+  }
+
+  @Test
+  void loadsAndPersistsAvailableMenuItemsForEveryDayInTheCurrentMonth() throws Exception {
+    CurrentMonthMenuItemsLoader loader = createLoader("configured-key");
+    when(diningCommonsService.get())
+        .thenReturn(List.of(DiningCommons.builder().code("ortega").build()));
+    when(diningMenuService.getJSON(anyString(), eq("ortega"))).thenReturn("[{\"code\":\"lunch\"}]");
+    when(diningMenuItemsService.get(anyString(), eq("ortega"), eq("lunch")))
+        .thenReturn(List.of(Entree.builder().name("Pasta").station("Main").build()));
+
+    loader.loadCurrentMonth();
+
+    int daysThisMonth = YearMonth.now().lengthOfMonth();
+    verify(diningMenuService, times(daysThisMonth)).getJSON(anyString(), eq("ortega"));
+    verify(diningMenuItemsService, times(daysThisMonth))
+        .getOrCreateMenuItems(eq("ortega"), eq("lunch"), org.mockito.ArgumentMatchers.anyList());
+  }
+
+  @Test
+  void retriesRateLimitedMenuItemRequests() throws Exception {
+    CurrentMonthMenuItemsLoader loader = createLoader("configured-key");
+    when(diningCommonsService.get())
+        .thenReturn(List.of(DiningCommons.builder().code("ortega").build()));
+    when(diningMenuService.getJSON(anyString(), eq("ortega")))
+        .thenThrow(rateLimitedWithImmediateRetry())
+        .thenReturn("[{\"code\":\"lunch\"}]");
+    when(diningMenuItemsService.get(anyString(), eq("ortega"), eq("lunch")))
+        .thenThrow(rateLimitedWithImmediateRetry())
+        .thenReturn(List.of(Entree.builder().name("Pasta").station("Main").build()));
+
+    loader.loadCurrentMonth();
+
+    int daysThisMonth = YearMonth.now().lengthOfMonth();
+    verify(diningMenuService, times(daysThisMonth + 1)).getJSON(anyString(), eq("ortega"));
+    verify(diningMenuItemsService, times(daysThisMonth + 1))
+        .get(anyString(), eq("ortega"), eq("lunch"));
+    verify(diningMenuItemsService, times(daysThisMonth))
+        .getOrCreateMenuItems(eq("ortega"), eq("lunch"), anyList());
+  }
+
+  private CurrentMonthMenuItemsLoader createLoader(String apiKey) {
+    return new CurrentMonthMenuItemsLoader(
+        new ObjectMapper(),
+        diningCommonsService,
+        diningMenuService,
+        diningMenuItemsService,
+        apiKey);
+  }
+
+  private HttpClientErrorException.TooManyRequests rateLimitedWithImmediateRetry() {
+    HttpHeaders headers = new HttpHeaders();
+    headers.set(HttpHeaders.RETRY_AFTER, "0");
+    return (HttpClientErrorException.TooManyRequests)
+        HttpClientErrorException.create(
+            HttpStatus.TOO_MANY_REQUESTS,
+            "Too Many Requests",
+            headers,
+            new byte[0],
+            StandardCharsets.UTF_8);
+  }
+}
