@@ -109,7 +109,7 @@ public class CurrentMonthMenuItemsLoader {
     }
   }
 
-  private Duration retryDelay(HttpClientErrorException.TooManyRequests exception, int retry) {
+  Duration retryDelay(HttpClientErrorException.TooManyRequests exception, int retry) {
 <span class="fc" id="L113">    HttpHeaders headers = exception.getResponseHeaders();</span>
 <span class="fc bfc" id="L114" title="All 2 branches covered.">    String retryAfter = headers == null ? null : headers.getFirst(HttpHeaders.RETRY_AFTER);</span>
 <span class="fc bfc" id="L115" title="All 2 branches covered.">    if (retryAfter != null) {</span>
