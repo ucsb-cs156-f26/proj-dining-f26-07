@@ -24,6 +24,7 @@ public abstract class WebTestCase {
   private boolean runHeadless;
 
   private static WireMockServer wireMockServer;
+  private static WireMockServer ucsbDiningWireMockServer;
 
   protected Browser browser;
   protected Page page;
@@ -35,11 +36,18 @@ public abstract class WebTestCase {
     WiremockServiceImpl.setupOauthMocks(wireMockServer, false);
 
     wireMockServer.start();
+
+    ucsbDiningWireMockServer = new WireMockServer(options().port(8091).globalTemplating(true));
+
+    WiremockServiceImpl.setupUCSBDiningMocks(ucsbDiningWireMockServer);
+
+    ucsbDiningWireMockServer.start();
   }
 
   @AfterAll
   public static void teardownWiremock() {
     wireMockServer.stop();
+    ucsbDiningWireMockServer.stop();
   }
 
   @AfterEach
