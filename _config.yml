@@ -23,4 +23,4 @@ repo_name: "TBD"
 repo: ucsb-cs156-f26/proj-dining-f26-07
 owner: ucsb-cs156-f26
 repo_name: proj-dining-f26-07
-pull_requests: [{"author":{"id":"U_kgDOCM7nVA","is_bot":false,"login":"sophia-ismaelucsb","name":""},"headRefName":"Sophia-currentMenuItems","number":17,"title":"Load Current Month's MenuItems on Startup","url":"https://github.com/ucsb-cs156-f26/proj-dining-f26-07/pull/17"}]
+pull_requests: [{"author":{"id":"MDQ6VXNlcjczMDgyMzgx","is_bot":false,"login":"derekflippo","name":"Derek Flippo"},"headRefName":"df-wiremock","number":23,"title":"Add WireMock server for UCSB Dining API and end-to-end review test","url":"https://github.com/ucsb-cs156-f26/proj-dining-f26-07/pull/23"},{"author":{"id":"U_kgDOCM7nVA","is_bot":false,"login":"sophia-ismaelucsb","name":""},"headRefName":"Sophia-currentMenuItems","number":17,"title":"Load Current Month's MenuItems on Startup","url":"https://github.com/ucsb-cs156-f26/proj-dining-f26-07/pull/17"}]
