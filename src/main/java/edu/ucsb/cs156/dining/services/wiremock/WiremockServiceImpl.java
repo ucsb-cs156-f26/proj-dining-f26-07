@@ -111,6 +111,69 @@ public class WiremockServiceImpl extends WiremockService {
     }
   }
 
+  /**
+   * This method sets up the necessary mocks for the UCSB Dining API
+   *
+   * @param s in an instance of a WireMockServer or WireMockExtension
+   */
+  public static void setupUCSBDiningMocks(Stubbing s) {
+
+    s.stubFor(
+        get(urlPathMatching("/dining/commons/v1/"))
+            .willReturn(
+                aResponse()
+                    .withStatus(200)
+                    .withHeader("Content-Type", "application/json")
+                    .withBody(
+                        """
+                    [
+                      {
+                        "name": "Carrillo",
+                        "code": "carrillo",
+                        "hasDiningCam": true,
+                        "hasSackMeal": false,
+                        "hasTakeOutMeal": false,
+                        "location": {
+                          "latitude": 34.409953,
+                          "longitude": -119.85277
+                        }
+                      }
+                    ]
+                    """)));
+
+    s.stubFor(
+        get(urlPathMatching("/dining/menu/v1/.*/carrillo"))
+            .willReturn(
+                aResponse()
+                    .withStatus(200)
+                    .withHeader("Content-Type", "application/json")
+                    .withBody(
+                        """
+                    [
+                      {
+                        "name": "Lunch",
+                        "code": "lunch"
+                      }
+                    ]
+                    """)));
+
+    s.stubFor(
+        get(urlPathMatching("/dining/menu/v1/.*/carrillo/lunch"))
+            .willReturn(
+                aResponse()
+                    .withStatus(200)
+                    .withHeader("Content-Type", "application/json")
+                    .withBody(
+                        """
+                    [
+                      {
+                        "name": "Oatmeal (vgn)",
+                        "station": "Grill (Cafe)"
+                      }
+                    ]
+                    """)));
+  }
+
   /** This method initializes the WireMockServer */
   public void init() {
     log.info("WiremockServiceImpl.init() called");
