@@ -25,6 +25,9 @@ export default function MenuItemPage() {
 
   return (
     <BasicLayout>
+      <h1>
+        Menu at {diningCommons} for {date}
+      </h1>
       <h2>{meal.at(0).toUpperCase() + meal.substring(1)}</h2>
       <MenuItemTable currentUser={currentUser} menuItems={menuItems} />
     </BasicLayout>

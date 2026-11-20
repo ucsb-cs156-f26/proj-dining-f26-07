@@ -97,6 +97,13 @@ describe("MenuItemPage", () => {
       ).toBeInTheDocument();
     });
 
+    expect(
+      screen.getByRole("heading", {
+        level: 1,
+        name: "Menu at carrillo for 2025-03-11",
+      }),
+    ).toBeInTheDocument();
+
     for (let i = 0; i < menuItemFixtures.fiveMenuItems.length; i++) {
       expect(
         screen.getByTestId(`MenuItemTable-cell-row-${i}-col-name`),
