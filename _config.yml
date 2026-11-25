@@ -23,4 +23,4 @@ repo_name: "TBD"
 repo: ucsb-cs156-f26/proj-dining-f26-07
 owner: ucsb-cs156-f26
 repo_name: proj-dining-f26-07
-pull_requests: [{"author":{"id":"U_kgDOCM7nVA","is_bot":false,"login":"sophia-ismaelucsb","name":""},"headRefName":"Sophia-storyboardRoleBadge","number":25,"title":"created storyboard for RoleBadge","url":"https://github.com/ucsb-cs156-f26/proj-dining-f26-07/pull/25"}]
+pull_requests: [{"author":{"id":"MDQ6VXNlcjM2NjExMzI1","is_bot":false,"login":"Sir-Edward-123","name":"Riley Zhu"},"headRefName":"rz-mutation-test-fix-for-main","number":28,"title":"Fixes mutation testing gaps in main by replacing instances of \" \" wit…","url":"https://github.com/ucsb-cs156-f26/proj-dining-f26-07/pull/28"},{"author":{"id":"U_kgDOCM7nVA","is_bot":false,"login":"sophia-ismaelucsb","name":""},"headRefName":"Sophia-storyboardRoleBadge","number":25,"title":"created storyboard for RoleBadge","url":"https://github.com/ucsb-cs156-f26/proj-dining-f26-07/pull/25"}]
