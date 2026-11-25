@@ -18,7 +18,8 @@ export default function Footer({ systemInfo }) {
           rel="noopener noreferrer"
         >
           CMPSC 156
-        </a>{space}
+        </a>
+        {space}
         at{space}
         <a
           data-testid="footer-ucsb-link"
