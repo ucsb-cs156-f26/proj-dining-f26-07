@@ -1,5 +1,6 @@
 package edu.ucsb.cs156.dining;
 
+import edu.ucsb.cs156.dining.services.CurrentMonthMenuItemsLoader;
 import edu.ucsb.cs156.dining.services.wiremock.WiremockService;
 import java.time.ZonedDateTime;
 import java.util.Optional;
@@ -45,6 +46,13 @@ public class ExampleApplication {
       log.info("development mode");
       log.info("developmentApplicationRunner completed");
     };
+  }
+
+  /** Loads this month's available menu items when the production application starts. */
+  @Profile("production")
+  @Bean
+  public ApplicationRunner currentMonthMenuItemsRunner(CurrentMonthMenuItemsLoader loader) {
+    return arg -> loader.loadCurrentMonth();
   }
 
   @Bean
