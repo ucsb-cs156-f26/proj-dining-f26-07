@@ -10,7 +10,7 @@ export default function Footer({ systemInfo }) {
   return (
     <footer className="bg-light pt-3 pt-md-4 pb-4 pb-md-5" data-testid="Footer">
       <Container>
-        This app is a class project of{" "}
+        This app is a class project of{space}
         <a
           data-testid="footer-class-website-link"
           href="https://ucsb-cs156.github.io"
@@ -18,8 +18,9 @@ export default function Footer({ systemInfo }) {
           rel="noopener noreferrer"
         >
           CMPSC 156
-        </a>{" "}
-        at{" "}
+        </a>
+        {space}
+        at{space}
         <a
           data-testid="footer-ucsb-link"
           href="https://ucsb.edu"
@@ -28,7 +29,7 @@ export default function Footer({ systemInfo }) {
         >
           UCSB
         </a>
-        . Check out the source code on{" "}
+        . Check out the source code on{space}
         <a
           data-testid="footer-source-code-link"
           href={"https://github.com/ucsb-cs156/proj-dining"}
@@ -38,7 +39,7 @@ export default function Footer({ systemInfo }) {
           GitHub
         </a>
         ! This is not an official source of UCSB dining commons information. An
-        official source can be found{" "}
+        official source can be found{space}
         <a
           data-testid="footer-dining-search-link"
           href="https://apps.dining.ucsb.edu/menu/day"
@@ -47,7 +48,7 @@ export default function Footer({ systemInfo }) {
         >
           here
         </a>
-        .{" "}
+        .{space}
         {feedbackUrl && (
           <>
             <Button
